@@ -32,19 +32,22 @@ No dedicated server required.
    federation graph) and `docs/index.html` (HTML search + browse), then
    commits; GitHub / Codeberg Pages serves the result immediately
 
-```
-┌─────────────────────────────────────────────────┐
-│  FDP Index A  (e.g. rare disease community)     │
-│  FDP Index B  (e.g. genomics community)         │
-│  FDP Index C  (e.g. clinical data community)    │
-└──────────┬──────────────────────────────────────┘
-           │  harvest (scheduled CI)
-           ▼
-  scripts/build_vp.py
-           │
-           ├──► docs/vp/federation.ttl   (full graph)
-           ├──► docs/vp/federation.jsonld
-           └──► docs/index.html          (search + browse UI)
+```mermaid
+flowchart TD
+    A["FDP Index A\ne.g. rare disease community"]
+    B["FDP Index B\ne.g. genomics community"]
+    C["FDP Index C\ne.g. clinical data community"]
+    PY["scripts/build_vp.py\nscheduled CI pipeline"]
+    TTL["docs/vp/federation.ttl\nfull graph"]
+    JSONLD["docs/vp/federation.jsonld"]
+    HTML["docs/index.html\nsearch + browse UI"]
+
+    A -->|"harvest"| PY
+    B -->|"harvest"| PY
+    C -->|"harvest"| PY
+    PY --> TTL
+    PY --> JSONLD
+    PY --> HTML
 ```
 
 ---
