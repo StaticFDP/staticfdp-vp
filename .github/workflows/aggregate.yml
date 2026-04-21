@@ -1,0 +1,53 @@
+name: Aggregate FDP Indexes
+
+on:
+  issues:
+    types: [opened, edited, labeled]
+  schedule:
+    - cron: "40 4 * * *"    # daily 04:40 UTC
+  workflow_dispatch:
+    inputs:
+      infrastructure:
+        description: "Override infrastructure target (github | codeberg | both | leave blank for config)"
+        required: false
+        default: ""
+
+jobs:
+  aggregate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install rdflib requests
+
+      - name: Build Virtual Platform
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INFRASTRUCTURE_OVERRIDE: ${{ github.event.inputs.infrastructure }}
+        run: python3 scripts/build_vp.py
+
+      - name: Commit generated federation graph
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/vp/ docs/index.html
+          git diff --staged --quiet && echo "No changes." || \
+            git commit -m "data: update VP federation graph [skip ci]"
+          git push origin main
+
+      - name: Summary
+        run: |
+          COUNT=$(grep -c 'fdp:MetadataService' docs/vp/federation.ttl 2>/dev/null || echo 0)
+          echo "### Virtual Platform updated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**${COUNT} FDP Indexes** in federation" >> $GITHUB_STEP_SUMMARY

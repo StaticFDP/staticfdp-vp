@@ -1,0 +1,48 @@
+name: Register FDP Index
+description: Register an FDP Index with this Virtual Platform
+title: "[REGISTER] "
+labels: ["index-registration"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Fill in the details below to register your FDP Index with this Virtual Platform.
+        The aggregation pipeline will pick it up on its next run (daily, or trigger manually).
+
+  - type: input
+    id: title
+    attributes:
+      label: FDP Index title
+      description: Human-readable name for your FDP Index
+      placeholder: "Rare Disease Community FDP Index"
+    validations:
+      required: true
+
+  - type: input
+    id: index_url
+    attributes:
+      label: Index catalog URL
+      description: Direct URL to your FDP Index's index.ttl (must return valid Turtle with dcat:Catalog)
+      placeholder: "https://owner.github.io/staticfdp-index/fdp-index/index.ttl"
+    validations:
+      required: true
+
+  - type: input
+    id: landing_page
+    attributes:
+      label: Landing page URL
+      description: Human-readable landing page for your FDP Index (optional)
+      placeholder: "https://owner.github.io/staticfdp-index/"
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Short description
+      description: One or two sentences describing the community this index serves
+      placeholder: "Index for rare disease FAIR Data Points in the XYZ community."
+
+  - type: input
+    id: contact
+    attributes:
+      label: Contact / maintainer
+      description: Name or ORCID of the index maintainer

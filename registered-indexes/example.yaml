@@ -1,0 +1,9 @@
+# Example registered FDP Index entry
+# Rename this file (e.g. rare-disease-community.yaml) and fill in the fields below.
+# The aggregation pipeline reads all *.yaml files in this directory.
+
+title: "Example FDP Index"
+index_url: "https://example.org/fdp-index/index.ttl"
+landing_page: "https://example.org/fdp-index/"
+description: "An example FDP Index registration. Replace with a real index."
+contact: "maintainer@example.org"

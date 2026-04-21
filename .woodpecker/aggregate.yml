@@ -1,0 +1,23 @@
+when:
+  - event: cron
+  - event: manual
+
+steps:
+  - name: aggregate
+    image: python:3.12-slim
+    environment:
+      FORGEJO_TOKEN:
+        from_secret: FORGEJO_TOKEN
+    commands:
+      - pip install rdflib requests --quiet
+      - python3 scripts/build_vp.py
+
+  - name: commit
+    image: alpine/git
+    commands:
+      - git config user.name  "woodpecker-ci[bot]"
+      - git config user.email "ci@codeberg.org"
+      - git add docs/vp/ docs/index.html
+      - git diff --staged --quiet && echo "No changes." ||
+          git commit -m "data: update VP federation graph [skip ci]"
+      - git push origin HEAD:main

@@ -1,0 +1,34 @@
+# Virtual Platform Configuration
+# ================================
+# Run  scripts/setup.sh  to fill this in interactively,
+# or edit directly and commit.
+
+virtual_platform:
+  title: "My Virtual Platform"
+  # Canonical public URL for this VP (used in all RDF metadata)
+  base_url: https://OWNER.github.io/staticfdp-vp
+  license: https://creativecommons.org/licenses/by/4.0/
+  publisher_name: "My Organisation"
+  publisher_url: https://example.org/
+
+infrastructure:
+  primary: github          # github | codeberg | both
+
+  github:
+    enabled: true
+    repo: OWNER/staticfdp-vp
+    pages_url: https://OWNER.github.io/staticfdp-vp
+
+  codeberg:
+    enabled: false
+    repo: OWNER/staticfdp-vp
+    base_url: https://codeberg.org
+    pages_url: https://OWNER.codeberg.page/staticfdp-vp
+
+aggregate:
+  # How often to re-aggregate all registered FDP Indexes (cron, UTC)
+  schedule: "40 4 * * *"
+  # Timeout per index fetch in seconds
+  timeout_seconds: 30
+  # If true, skip indexes that are unreachable (don't remove them from registry)
+  soft_fail: true
