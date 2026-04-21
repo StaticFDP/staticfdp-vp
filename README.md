@@ -1,6 +1,7 @@
 # staticfdp-vp
 
-A **Static Virtual Platform** — the third layer of the [StaticFDP ecosystem](https://github.com/StaticFDP/staticfdp).
+A **Static Virtual Platform** — the third layer of the StaticFDP ecosystem
+([GitHub](https://github.com/StaticFDP/staticfdp) · [Codeberg](https://codeberg.org/StaticFDP/staticfdp)).
 
 A Virtual Platform (VP) is a federated discovery hub that aggregates multiple
 FDP Indexes into a single browsable and machine-readable catalog. Data stays
@@ -12,15 +13,11 @@ No dedicated server required.
 
 ## Part of the StaticFDP Ecosystem
 
-| Repository | Layer |
-|---|---|
-| [staticfdp](https://github.com/StaticFDP/staticfdp) | FAIR Data Point |
-| [staticfdp-index](https://github.com/StaticFDP/staticfdp-index) | FDP Index |
-| **staticfdp-vp** ← you are here | Virtual Platform |
-
-Both GitHub and Codeberg deployments are maintained:
-- GitHub: [github.com/StaticFDP/staticfdp-vp](https://github.com/StaticFDP/staticfdp-vp)
-- Codeberg: [codeberg.org/StaticFDP/staticfdp-vp](https://codeberg.org/StaticFDP/staticfdp-vp)
+| Repository | GitHub | Codeberg | Layer |
+|---|---|---|---|
+| staticfdp | [github.com/StaticFDP/staticfdp](https://github.com/StaticFDP/staticfdp) | [codeberg.org/StaticFDP/staticfdp](https://codeberg.org/StaticFDP/staticfdp) | FAIR Data Point |
+| staticfdp-index | [github.com/StaticFDP/staticfdp-index](https://github.com/StaticFDP/staticfdp-index) | [codeberg.org/StaticFDP/staticfdp-index](https://codeberg.org/StaticFDP/staticfdp-index) | FDP Index |
+| **staticfdp-vp** ← you are here | [github.com/StaticFDP/staticfdp-vp](https://github.com/StaticFDP/staticfdp-vp) | [codeberg.org/StaticFDP/staticfdp-vp](https://codeberg.org/StaticFDP/staticfdp-vp) | Virtual Platform |
 
 ---
 
@@ -54,10 +51,18 @@ Both GitHub and Codeberg deployments are maintained:
 
 ## Quick start
 
+**GitHub:**
 ```bash
 git clone https://github.com/StaticFDP/staticfdp-vp
 cd staticfdp-vp
 bash scripts/setup.sh          # configure GitHub / Codeberg / both
+```
+
+**Codeberg:**
+```bash
+git clone https://codeberg.org/StaticFDP/staticfdp-vp
+cd staticfdp-vp
+bash scripts/setup.sh
 ```
 
 Then:
