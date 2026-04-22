@@ -241,21 +241,125 @@
 </div>
 
 <script>
-// ── ORCID init ────────────────────────────────────────────────────────────────
-(function initOrcid() {
-  const m = document.cookie.match(/orcid_id=([^;]+)/);
-  if (m) {
-    const id = decodeURIComponent(m[1]);
-    const el = document.getElementById('orcid');
-    if (el) { el.value = id; el.readOnly = true; }
-    const banner = document.getElementById('auth-banner');
-    if (banner) {
-      banner.innerHTML = `<span class="icon">✅</span><div>Signed in as ORCID <strong>${id}</strong></div>`;
-      banner.classList.add('ok');
+// ── Identity init (ORCID + RoR) ───────────────────────────────────────────────
+(function initIdentity() {
+  function cookie(name) {
+    const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('orcid_id')) {
+    sessionStorage.setItem('orcid_id',    params.get('orcid_id'));
+    sessionStorage.setItem('orcid_name',  params.get('orcid_name')  || '');
+    if (params.get('ror_id')) {
+      sessionStorage.setItem('ror_id',      params.get('ror_id'));
+      sessionStorage.setItem('ror_name',    params.get('ror_name')    || '');
+      sessionStorage.setItem('ror_country', params.get('ror_country') || '');
+    }
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
+  const orcidId   = cookie('orcid_id')   || sessionStorage.getItem('orcid_id');
+  const orcidName = cookie('orcid_name') || sessionStorage.getItem('orcid_name') || '';
+  const rorId     = cookie('ror_id')     || sessionStorage.getItem('ror_id');
+  const rorName   = cookie('ror_name')   || sessionStorage.getItem('ror_name')   || '';
+  const rorCountry= cookie('ror_country')|| sessionStorage.getItem('ror_country')|| '';
+  const banner    = document.getElementById('auth-banner');
+
+  if (orcidId) {
+    const orcidEl = document.getElementById('orcid');
+    if (orcidEl) { orcidEl.value = orcidId; orcidEl.readOnly = true; }
+
+    if (rorId && rorName) {
+      const pubEl = document.getElementById('publisher');
+      if (pubEl && !pubEl.value) pubEl.value = rorName;
+      window._rorId = rorId; window._rorName = rorName; window._rorCountry = rorCountry;
+      if (banner) {
+        banner.innerHTML = `
+          <span class="icon">✅</span>
+          <div>
+            <strong>${orcidName || orcidId}</strong>
+            &nbsp;·&nbsp; 🏢 <a href="${rorId}" target="_blank" rel="noopener"
+              style="color:#4c1d95;font-weight:600">${rorName}</a>
+            <span style="font-size:11px;color:#9ca3af;margin-left:4px">from ORCID</span>
+          </div>
+          <a class="login-link" href="/auth/logout" style="color:#6b7280">Sign out</a>`;
+        banner.classList.add('ok');
+      }
+    } else {
+      window._rorId = null; window._rorName = null; window._rorCountry = null;
+      if (banner) {
+        banner.innerHTML = `
+          <span class="icon">✅</span>
+          <div style="flex:1">
+            <strong>${orcidName || orcidId}</strong> — no organisation found in ORCID profile.<br>
+            <div style="display:flex;gap:6px;margin-top:6px;align-items:center">
+              <input id="banner-ror-search" type="text" placeholder="Search your organisation…"
+                style="flex:1;padding:5px 8px;border:1px solid #ede9fe;border-radius:6px;font-size:12px"
+                oninput="bannerRoRDebounce()">
+              <button type="button" onclick="bannerRoRSearch()"
+                style="padding:5px 10px;background:#7c3aed;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer">Search</button>
+            </div>
+            <div id="banner-ror-results"></div>
+          </div>`;
+        banner.classList.add('ok');
+      }
     }
     preview();
   }
 })();
+
+let _bRorTimer = null;
+function bannerRoRDebounce() { clearTimeout(_bRorTimer); _bRorTimer = setTimeout(bannerRoRSearch, 350); }
+async function bannerRoRSearch() {
+  const q = document.getElementById('banner-ror-search')?.value.trim();
+  if (!q || q.length < 2) return;
+  const res = document.getElementById('banner-ror-results');
+  if (!res) return;
+  res.innerHTML = '<div style="font-size:12px;color:#9ca3af;padding:4px 0">Searching…</div>';
+  try {
+    const data = await (await fetch(`https://api.ror.org/organizations?query=${encodeURIComponent(q)}`)).json();
+    res.innerHTML = (data.items || []).slice(0, 5).map(org =>
+      `<div onclick="selectBannerRoR('${org.id}',${JSON.stringify(org.name)},'${org.country?.country_code||''}')"
+        style="padding:5px 8px;cursor:pointer;font-size:12px;border-radius:4px;margin-top:2px;background:#f5f3ff">
+        <strong>${org.name}</strong> <span style="color:#9ca3af">${org.country?.country_name||''}</span>
+      </div>`
+    ).join('');
+  } catch { res.innerHTML = '<div style="font-size:12px;color:#ef4444">Lookup failed</div>'; }
+}
+function selectBannerRoR(id, name, country) {
+  window._rorId = id; window._rorName = name; window._rorCountry = country;
+  sessionStorage.setItem('ror_id', id); sessionStorage.setItem('ror_name', name);
+  const pubEl = document.getElementById('publisher');
+  if (pubEl && !pubEl.value) pubEl.value = name;
+  const banner = document.getElementById('auth-banner');
+  const orcidName = sessionStorage.getItem('orcid_name') || sessionStorage.getItem('orcid_id') || '';
+  if (banner) {
+    banner.innerHTML = `
+      <span class="icon">✅</span>
+      <div><strong>${orcidName}</strong> &nbsp;·&nbsp; 🏢 <a href="${id}" target="_blank" style="color:#4c1d95;font-weight:600">${name}</a></div>
+      <button onclick="saveRoRToOrcid('${id}',${JSON.stringify(name)},'${country}')"
+        style="margin-left:auto;padding:4px 10px;background:#7c3aed;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;white-space:nowrap">
+        Save to ORCID</button>`;
+  }
+  preview();
+}
+async function saveRoRToOrcid(id, name, country) {
+  const btn = event?.target;
+  if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
+  try {
+    const resp = await fetch('/auth/orcid/update-affiliation', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ror_id: id, ror_name: name, ror_country: country }),
+    });
+    if (!resp.ok) throw new Error((await resp.json()).error || resp.statusText);
+    if (btn) { btn.textContent = '✓ Saved to ORCID'; btn.style.background = '#16a34a'; }
+  } catch(err) {
+    if (btn) { btn.textContent = 'Save to ORCID'; btn.disabled = false; }
+    alert('Could not save to ORCID: ' + err.message);
+  }
+}
 
 // ── Preview ───────────────────────────────────────────────────────────────────
 function preview() {
