@@ -1,5 +1,8 @@
 # staticfdp-vp
 
+> [!NOTE]
+> **Experimental.** This is the only Virtual Platform implementation in StaticFDP, and it stays. In the [StaticFDP consolidation](https://github.com/StaticFDP/.github/blob/main/profile/README.md#which-repository-does-what), the layers are: publish with the [FDP ecosystem template](https://github.com/StaticFDP/fdp-ecosystem-template), index with [fdp-index](https://github.com/StaticFDP/fdp-index), aggregate indexes here. Next step: harvest fdp-index's `index.ttl`.
+
 A **Static Virtual Platform** — the third layer of the StaticFDP ecosystem
 ([GitHub](https://github.com/StaticFDP/staticfdp) · [Codeberg](https://codeberg.org/StaticFDP/staticfdp)).
 
